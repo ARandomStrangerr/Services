@@ -7,11 +7,11 @@
 class Listener;
 class Socket;
 
-class ClientSocket{
+class Socket{
 private:
   int socket;
 public:
-  ClientSocket(int socket){
+  Socket(int socket){
     this -> socket = socket;
   }
 
@@ -34,12 +34,12 @@ public:
   }
 };
 
-class ServerSocket{
+class Listener{
 private:
   int port;
   int serverSocket;
-public:
-  ServerSocket(int port, int queueLength){
+protected:
+  Listener(int serverSocket, int port, int queueLength){
     this -> port = port;
 
     /*
@@ -55,7 +55,7 @@ public:
     protocol: protocol value for internet protocol
       value is 0
     */
-    serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+    this -> serverSocket = serverSocket;
     if (serverSocket == 0){
         throw std::runtime_error("Cannot create the socket");
     }
@@ -71,20 +71,20 @@ public:
 
     listen (serverSocket, queueLength);
   }
-
+public:
   int getPort(){
     return this -> port;
   }
 
-  ClientSocket acceptSocket(){
+  Socket acceptSocket(){
     struct sockaddr_in clientAddr;
     socklen_t length = sizeof(clientAddr);
     int acceptSocket = accept(serverSocket, (struct sockaddr*) &clientAddr, &length);
-    ClientSocket clientSocket(acceptSocket);
+    Socket clientSocket(acceptSocket);
     return clientSocket;
   }
 
-  friend std::ostream& operator<< (std::ostream& os, const ServerSocket& a){
+  friend std::ostream& operator<< (std::ostream& os, const Listener& a){
     os << "this ServerSocket is operating on port : " << a.port << std::endl;
     return os;
   }
