@@ -11,6 +11,10 @@ class Socket{
 private:
   int socket;
 public:
+  Socket(int socket, std::string address, int port){
+    struct sockaddr_in serverAddr;
+
+  }
   Socket(int socket){
     this -> socket = socket;
   }
@@ -39,7 +43,7 @@ private:
   int port;
   int serverSocket;
 protected:
-  Listener(int serverSocket, int port, int queueLength){
+  Listener(sa_family_t domain, __socket_type type, int port, int queueLength){
     this -> port = port;
 
     /*
@@ -55,7 +59,7 @@ protected:
     protocol: protocol value for internet protocol
       value is 0
     */
-    this -> serverSocket = serverSocket;
+    this -> serverSocket = socket(domain, type, 0);
     if (serverSocket == 0){
         throw std::runtime_error("Cannot create the socket");
     }
@@ -64,7 +68,7 @@ protected:
     setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
 
     struct sockaddr_in serverAddr;  // server info struct
-    serverAddr.sin_family = AF_INET;  // TCP/IP
+    serverAddr.sin_family = domain;  // TCP/IP IPv4
     serverAddr.sin_addr.s_addr = INADDR_ANY;  // server addr--permit all connection
     serverAddr.sin_port = htons(port);  //port of the
     bind(serverSocket, (struct sockaddr*) &serverAddr, sizeof(struct sockaddr));
